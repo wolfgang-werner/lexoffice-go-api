@@ -9,12 +9,14 @@ import (
 )
 
 const (
-	lexofficeBaseUrlV1 string = "https://api.lexoffice.io/v1"
+	lexofficeBaseUrlV1   string = "https://api.lexoffice.io/v1"
+	lexofficeDebugOutput bool   = false
 )
 
 type Client struct {
 	apiKey     string
 	baseURL    string
+	debug      bool
 	HTTPClient *http.Client
 }
 
@@ -23,6 +25,7 @@ func NewClient(apiKey string) *Client {
 	return &Client{
 		apiKey:  apiKey,
 		baseURL: lexofficeBaseUrlV1,
+		debug:   lexofficeDebugOutput,
 		HTTPClient: &http.Client{
 			Timeout: 5 * time.Minute,
 		},
@@ -38,6 +41,10 @@ func (c *Client) sendRequest(req *http.Request, result interface{}) error {
 	req.Header.Set("Accept", "application/json; charset=utf-8")
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.apiKey))
 
+	if c.debug {
+		fmt.Printf("\n%s\n\n", prettyPrintRequest(req))
+	}
+
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
 		return err
@@ -45,7 +52,10 @@ func (c *Client) sendRequest(req *http.Request, result interface{}) error {
 
 	defer res.Body.Close()
 
-	// Try to unmarshall into errorResponse
+	if c.debug {
+		fmt.Printf("\n%s\n\n", prettyPrintResponse(res))
+	}
+
 	if res.StatusCode != http.StatusOK {
 		var errRes errorResponse
 		if err = json.NewDecoder(res.Body).Decode(&errRes); err == nil {
@@ -55,7 +65,6 @@ func (c *Client) sendRequest(req *http.Request, result interface{}) error {
 		return fmt.Errorf("unknown error, status code: %d", res.StatusCode)
 	}
 
-	// Unmarshall and populate result
 	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
 		return err
 	}
