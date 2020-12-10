@@ -15,6 +15,13 @@ const (
 	prettyPrintIndent = "  "
 )
 
+func safeString(in *string) string {
+	if in == nil {
+		in = new(string)
+	}
+	return *in
+}
+
 // helper to get a nicely formatted json from an arbitrary struct
 func prettyPrintJson(object interface{}) string {
 	b, _ := json.MarshalIndent(object, prettyPrintPrefix, prettyPrintIndent)
