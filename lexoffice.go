@@ -9,8 +9,9 @@ import (
 )
 
 const (
-	lexofficeBaseUrlV1   string = "https://api.lexoffice.io/v1"
-	lexofficeDebugOutput bool   = false
+	lexofficeBaseUrlV1      = "https://api.lexoffice.io/v1"
+	lexofficeDebugOutput    = false
+	lexofficeTimeoutMinutes = 5
 )
 
 type Client struct {
@@ -27,7 +28,7 @@ func NewClient(apiKey string) *Client {
 		baseURL: lexofficeBaseUrlV1,
 		debug:   lexofficeDebugOutput,
 		HTTPClient: &http.Client{
-			Timeout: 5 * time.Minute,
+			Timeout: lexofficeTimeoutMinutes * time.Minute,
 		},
 	}
 }
