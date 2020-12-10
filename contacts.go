@@ -38,25 +38,25 @@ type Vendor struct {
 
 type Company struct {
 	Name                 string           `json:"name"`
-	TaxNumber            string           `json:"taxNumber"`
-	VatRegistrationID    string           `json:"vatRegistrationId"`
+	TaxNumber            *string          `json:"taxNumber"`
+	VatRegistrationID    *string          `json:"vatRegistrationId"`
 	AllowTaxFreeInvoices bool             `json:"allowTaxFreeInvoices"`
 	ContactPersons       []ContactPersons `json:"contactPersons"`
 }
 
 type ContactPersons struct {
-	Salutation   string `json:"salutation"`
-	FirstName    string `json:"firstName"`
-	LastName     string `json:"lastName"`
-	Primary      bool   `json:"primary"`
-	EmailAddress string `json:"emailAddress"`
-	PhoneNumber  string `json:"phoneNumber"`
+	Salutation   *string `json:"salutation"`
+	FirstName    *string `json:"firstName"`
+	LastName     string  `json:"lastName"`
+	Primary      bool    `json:"primary"`
+	EmailAddress *string `json:"emailAddress"`
+	PhoneNumber  *string `json:"phoneNumber"`
 }
 
 type Person struct {
-	Salutation string `json:"salutation"`
-	FirstName  string `json:"firstName"`
-	LastName   string `json:"lastName"`
+	Salutation *string `json:"salutation"`
+	FirstName  *string `json:"firstName"`
+	LastName   string  `json:"lastName"`
 }
 
 type Addresses struct {
@@ -65,11 +65,11 @@ type Addresses struct {
 }
 
 type Address struct {
-	Supplement  string `json:"supplement"`
-	Street      string `json:"street"`
-	Zip         string `json:"zip"`
-	City        string `json:"city"`
-	CountryCode string `json:"countryCode"`
+	Supplement  *string `json:"supplement"`
+	Street      *string `json:"street"`
+	Zip         *string `json:"zip"`
+	City        *string `json:"city"`
+	CountryCode string  `json:"countryCode"`
 }
 
 type EmailAddresses struct {
