@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 	"time"
 )
 
@@ -96,6 +97,26 @@ type CreateContactResponse struct {
 	Version     int       `json:"version"`
 }
 
+type LookupContactsResponse struct {
+	Content          []Contact `json:"content"`
+	First            bool      `json:"first"`
+	Last             bool      `json:"last"`
+	Number           int       `json:"number"`
+	NumberOfElements int       `json:"numberOfElements"`
+	Size             int       `json:"size"`
+	Sort             []Sort    `json:"sort"`
+	TotalElements    int       `json:"totalElements"`
+	TotalPages       int       `json:"totalPages"`
+}
+
+type Sort struct {
+	Ascending    bool   `json:"ascending"`
+	Direction    string `json:"direction"`
+	IgnoreCase   bool   `json:"ignoreCase"`
+	NullHandling string `json:"nullHandling"`
+	Property     string `json:"property"`
+}
+
 // GetContact returns contact object by ContactID
 func (c *Client) GetContact(contactID string) (*Contact, error) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/contacts/%s", c.baseURL, url.PathEscape(contactID)), nil)
@@ -126,6 +147,82 @@ func (c *Client) CreateContact(contact *Contact) (*CreateContactResponse, error)
 	req.Header.Set("Content-Type", "application/json")
 
 	var res CreateContactResponse
+	if err := c.sendRequest(req, &res); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+// UpdateContact creates a new contact (person or company)
+func (c *Client) UpdateContact(contact *Contact) (*CreateContactResponse, error) {
+	jsonValue, err := json.Marshal(contact)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PUT", fmt.Sprintf("%s/contacts/%s", c.baseURL, *contact.ID), bytes.NewBuffer(jsonValue))
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+
+	var res CreateContactResponse
+	if err := c.sendRequest(req, &res); err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+type Filter struct {
+	name  string
+	value string
+}
+
+// NewFilter creates a new filter
+func NewFilter(k, v string) Filter {
+	if !(k == "email" || k == "name" || k == "number" || k == "customer" || k == "vendor") {
+		fmt.Printf("invalid filter %s)%s", k, v)
+	}
+
+	return Filter{
+		name:  k,
+		value: v,
+	}
+}
+
+type Pagination struct {
+	page int
+	size int
+}
+
+func buildFilterParameter(filters []Filter, pagination Pagination) string {
+	if filters == nil || len(filters) == 0 {
+		return "?page=" + strconv.Itoa(pagination.page) + "&size=" + strconv.Itoa(pagination.size)
+	}
+
+	var parameter string
+	for ndx, filter := range filters {
+		if ndx == 0 {
+			parameter = "?" + filter.name + "=" + url.PathEscape(filter.value)
+		} else {
+			parameter = parameter + "&" + filter.name + "=" + url.PathEscape(filter.value)
+		}
+	}
+
+	return parameter + "&page=" + strconv.Itoa(pagination.page) + "&size=" + strconv.Itoa(pagination.size)
+}
+
+func (c *Client) LookupContacts(filters []Filter, pagination Pagination) (*LookupContactsResponse, error) {
+	filter := buildFilterParameter(filters, pagination)
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/contacts%s", c.baseURL, filter), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var res LookupContactsResponse
 	if err := c.sendRequest(req, &res); err != nil {
 		return nil, err
 	}
