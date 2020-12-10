@@ -18,6 +18,8 @@ You have to verify your email address and setup your password on first login.
 After you have successfully logged in, just go to https://app.lexoffice.de/settings/#/public-api
 to create your API key, attached to your instance and valid for 24 months. 
 
+You can find the vendor explanation for this [in the cookbook](https://developers.lexoffice.io/cookbooks/public-api/#lexoffice-api-kochbuch-public-api-first-steps).
+
 This module needs this API key to connect. You'll provide the API key as an environment 
 variable or in an .env file (you can also hard-code it in your project if you dare).
 
@@ -58,6 +60,11 @@ import "github.com/wolfgang-werner/lexoffice-go-api"
 
 // Replace API_KEY with your real key
 client := lexoffice.NewClient("API_KEY")
+
+// enable debug output
+client.debug = true
+
+
 ```
 
 
