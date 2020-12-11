@@ -177,42 +177,44 @@ func (c *Client) UpdateContact(contact *Contact) (*CreateContactResponse, error)
 }
 
 type Filter struct {
-	name  string
-	value string
-}
-
-// NewFilter creates a new filter
-func NewFilter(k, v string) Filter {
-	if !(k == "email" || k == "name" || k == "number" || k == "customer" || k == "vendor") {
-		fmt.Printf("invalid filter %s)%s", k, v)
-	}
-
-	return Filter{
-		name:  k,
-		value: v,
-	}
+	Name  string
+	Value string
 }
 
 type Pagination struct {
-	page int
-	size int
+	Page int
+	Size int
+}
+
+// NewFilter creates a new filter
+func NewFilter(name, value string) Filter {
+	if !(name == "email" || name == "name" || name == "number" || name == "customer" || name == "vendor") {
+		fmt.Printf("invalid filter %s)%s", name, value)
+	}
+	return Filter{
+		Name:  name,
+		Value: value,
+	}
+}
+
+func separator(first bool) string {
+	return map[bool]string{true: "?", false: "&"}[first]
+}
+
+func (f *Filter) build(first bool) string {
+	return separator(first) + f.Name + "=" + url.PathEscape(f.Value)
+}
+
+func (p *Pagination) build(first bool) string {
+	return separator(first) + "page=" + strconv.Itoa(p.Page) + "&size=" + strconv.Itoa(p.Size)
 }
 
 func buildFilterParameter(filters []Filter, pagination Pagination) string {
-	if filters == nil || len(filters) == 0 {
-		return "?page=" + strconv.Itoa(pagination.page) + "&size=" + strconv.Itoa(pagination.size)
-	}
-
 	var parameter string
-	for ndx, filter := range filters {
-		if ndx == 0 {
-			parameter = "?" + filter.name + "=" + url.PathEscape(filter.value)
-		} else {
-			parameter = parameter + "&" + filter.name + "=" + url.PathEscape(filter.value)
-		}
+	for _, filter := range filters {
+		parameter += filter.build(len(parameter) == 0)
 	}
-
-	return parameter + "&page=" + strconv.Itoa(pagination.page) + "&size=" + strconv.Itoa(pagination.size)
+	return parameter + pagination.build(len(parameter) == 0)
 }
 
 func (c *Client) LookupContacts(filters []Filter, pagination Pagination) (*LookupContactsResponse, error) {

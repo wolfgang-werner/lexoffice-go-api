@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-type ProfileResponse struct {
+type Profile struct {
 	OrganizationID string `json:"organizationId"`
 	CompanyName    string `json:"companyName"`
 	Created        struct {
@@ -22,13 +22,13 @@ type ProfileResponse struct {
 }
 
 // GetProfile returns the profile information
-func (c *Client) GetProfile() (*ProfileResponse, error) {
+func (c *Client) GetProfile() (*Profile, error) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/profile", c.baseURL), nil)
 	if err != nil {
 		return nil, err
 	}
 
-	res := ProfileResponse{}
+	res := Profile{}
 	if err := c.sendRequest(req, &res); err != nil {
 		return nil, err
 	}

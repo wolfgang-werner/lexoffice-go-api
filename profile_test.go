@@ -12,7 +12,7 @@ func TestGetProfile(t *testing.T) {
 	client.debug = true
 
 	profile, err := client.GetProfile()
-	assert.NoError(t, err, "error calling GetContact")
+	assert.NoError(t, err, "error calling GetProfile")
 	assert.NotNil(t, profile, "no response")
 	if client.debug {
 		// fmt.Printf("%#v\n", contact)

@@ -154,7 +154,7 @@ func TestLookupAll(t *testing.T) {
 		NewFilter("number", "10001"),
 		NewFilter("customer", "true"),
 	}
-	pagination := Pagination{page: 0, size: 5}
+	pagination := Pagination{Page: 0, Size: 5}
 
 	response, err := client.LookupContacts(filters, pagination)
 	assert.NoError(t, err, "error calling LookupContact")
