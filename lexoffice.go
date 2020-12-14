@@ -1,3 +1,4 @@
+// This module implements a Go REST API client for the public API from lexoffice.
 package lexoffice
 
 import (
